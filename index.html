@@ -11,6 +11,7 @@
     label { display: block; margin-top: 0.5rem; font-size: 0.9rem; }
     input, select { width: 100%; padding: 0.4rem; border-radius: 0.5rem; border: none; margin-top: 0.2rem; }
     button { margin-top: 0.8rem; width: 100%; padding: 0.6rem; border-radius: 0.5rem; border: none; background: #22c55e; color: #022c22; font-weight: 600; }
+    .danger { background:#dc2626 !important; color:white !important; }
     .resumen { display: flex; gap: 0.5rem; flex-wrap: wrap; }
     .resumen div { flex: 1 1 30%; background: #111827; padding: 0.6rem; border-radius: 0.5rem; text-align: center; }
     .historial-item { font-size: 0.85rem; border-bottom: 1px solid #374151; padding: 0.4rem 0; }
@@ -19,7 +20,7 @@
 </head>
 <body>
 
-<!-- LOGO DORADO MINIMALISTA -->
+<!-- LOGO -->
 <img src="logo-pando.png" alt="Logo PANDO" style="display:block;margin:0 auto;width:180px;">
 
 <h1>Ingresos y Egresos PANDO</h1>
@@ -86,6 +87,7 @@
 <div class="card">
   <h2>Historial</h2>
   <div id="historial"></div>
+  <button class="danger" onclick="borrarTodo()">Borrar TODO el historial</button>
 </div>
 
 <script>
@@ -188,4 +190,82 @@ function actualizarCategorias(){
   });
 }
 
-function formato(n){ return "S/ " +
+function formato(n){ return "S/ " + n.toFixed(2); }
+
+function actualizarResumen(){
+  let ingresos = 0, egresos = 0;
+  movimientos.forEach(m => m.tipo === "ingreso" ? ingresos += m.monto : egresos += m.monto);
+  document.getElementById("ingresosTotal").textContent = formato(ingresos);
+  document.getElementById("egresosTotal").textContent = formato(egresos);
+  document.getElementById("balanceTotal").textContent = formato(ingresos - egresos);
+}
+
+function eliminarMovimiento(i){
+  if(confirm("¿Seguro que deseas eliminar este movimiento?")){
+    movimientos.splice(i, 1);
+    guardarDatos();
+    actualizarResumen();
+    pintarHistorial();
+  }
+}
+
+function borrarTodo(){
+  if(confirm("¿Eliminar TODO el historial?")){
+    movimientos = [];
+    guardarDatos();
+    actualizarResumen();
+    pintarHistorial();
+  }
+}
+
+function pintarHistorial(){
+  const cont = document.getElementById("historial");
+  cont.innerHTML = "";
+
+  movimientos.forEach((m, index) => {
+    const div = document.createElement("div");
+    div.className = "historial-item";
+
+    div.innerHTML = `
+      ${m.fecha} · ${m.tipo.toUpperCase()} · ${m.categoria} · S/ ${m.monto.toFixed(2)}
+      — ${m.descripcion} · ${m.propiedad} · ${m.habitacion}
+      <button class="btn-delete" onclick="eliminarMovimiento(${index})">X</button>
+    `;
+
+    cont.appendChild(div);
+  });
+}
+
+function registrar(){
+  const fecha = document.getElementById("fecha").value || new Date().toISOString().slice(0,10);
+  const tipo = document.getElementById("tipo").value;
+  const categoria = document.getElementById("categoria").value;
+  const descripcion = document.getElementById("descripcion").value || "";
+  const monto = parseFloat(document.getElementById("monto").value || "0");
+  const propiedad = document.getElementById("propiedad").value;
+  const habitacion = document.getElementById("habitacion").value;
+
+  if(isNaN(monto) || monto < 0.10){
+    alert("Ingresa un monto válido (mínimo S/ 0.10).");
+    return;
+  }
+
+  movimientos.push({ fecha, tipo, categoria, descripcion, monto, propiedad, habitacion });
+
+  guardarDatos();
+  actualizarResumen();
+  pintarHistorial();
+
+  document.getElementById("monto").value = "";
+  document.getElementById("descripcion").value = "";
+}
+
+cargarDatos();
+actualizarCategorias();
+actualizarCampos();
+actualizarPisos();
+</script>
+
+</body>
+</html>
+
