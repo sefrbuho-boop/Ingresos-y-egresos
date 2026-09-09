@@ -14,6 +14,7 @@
     .resumen { display: flex; gap: 0.5rem; flex-wrap: wrap; }
     .resumen div { flex: 1 1 30%; background: #111827; padding: 0.6rem; border-radius: 0.5rem; text-align: center; }
     .historial-item { font-size: 0.85rem; border-bottom: 1px solid #374151; padding: 0.4rem 0; }
+    .btn-delete { float:right; background:#ef4444; color:white; border:none; padding:2px 6px; border-radius:4px; cursor:pointer; }
   </style>
 </head>
 <body>
@@ -98,7 +99,7 @@ let movimientos = [];
 // PISOS Y HABITACIONES
 const pisosCasa = {
   "Piso 1": ["Habitación 1","Habitación 2","Habitación 3","Habitación 4","Habitación 5"],
-  "Piso 2": ["Habitación 1","Habitación 2","Habititación 3","Habitación 4","Habitación 5"],
+  "Piso 2": ["Habitación 1","Habitación 2","Habitación 3","Habitación 4","Habitación 5"],
   "Piso 3": ["Habitación 1","Habitación 2","Habitación 3","Habitación 4","Habitación 5"],
   "Piso 4": ["Habitación 1","Habitación 2","Habitación 3","Habitación 4","Habitación 5"],
   "Piso 5": ["Habitación 1","Habitación 2","Habitación 3","Habitación 4","Habitación 5"]
@@ -214,13 +215,31 @@ function actualizarResumen(){
   document.getElementById("balanceTotal").textContent = formato(ingresos - egresos);
 }
 
+// ⭐ BORRAR MOVIMIENTO INDIVIDUAL
+function eliminarMovimiento(i){
+  if(confirm("¿Seguro que deseas eliminar este movimiento?")){
+    movimientos.splice(i, 1);
+    guardarDatos();
+    actualizarResumen();
+    pintarHistorial();
+  }
+}
+
+// HISTORIAL CON BOTÓN X
 function pintarHistorial(){
   const cont = document.getElementById("historial");
   cont.innerHTML = "";
-  movimientos.slice().reverse().forEach(m => {
+
+  movimientos.forEach((m, index) => {
     const div = document.createElement("div");
     div.className = "historial-item";
-    div.textContent = `${m.fecha} · ${m.tipo.toUpperCase()} · ${m.categoria} · ${formato(m.monto)} — ${m.descripcion} · ${m.propiedad} · ${m.habitacion}`;
+
+    div.innerHTML = `
+      ${m.fecha} · ${m.tipo.toUpperCase()} · ${m.categoria} · S/ ${m.monto.toFixed(2)}
+      — ${m.descripcion} · ${m.propiedad} · ${m.habitacion}
+      <button class="btn-delete" onclick="eliminarMovimiento(${index})">X</button>
+    `;
+
     cont.appendChild(div);
   });
 }
@@ -257,3 +276,4 @@ actualizarPisos();
 
 </body>
 </html>
+
