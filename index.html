@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body { font-family: system-ui, sans-serif; margin: 0; padding: 1rem; background: #0f172a; color: #f9fafb; }
-    h1 { text-align: center; }
+    h1 { text-align: center; margin-top: 0.5rem; }
     .card { background: #1f2937; padding: 1rem; border-radius: 0.75rem; margin-bottom: 1rem; }
     label { display: block; margin-top: 0.5rem; font-size: 0.9rem; }
     input, select { width: 100%; padding: 0.4rem; border-radius: 0.5rem; border: none; margin-top: 0.2rem; }
@@ -18,6 +18,9 @@
   </style>
 </head>
 <body>
+
+<!-- LOGO DORADO MINIMALISTA -->
+<img src="logo-pando.png" alt="Logo PANDO" style="display:block;margin:0 auto;width:180px;">
 
 <h1>Ingresos y Egresos PANDO</h1>
 
@@ -33,7 +36,6 @@
 <div class="card">
   <h2>Nuevo movimiento</h2>
 
-  <!-- 1. INGRESO O EGRESO -->
   <label>Tipo de movimiento
     <select id="tipo" onchange="actualizarCategorias(); actualizarCampos();">
       <option value="ingreso">Ingreso</option>
@@ -41,7 +43,6 @@
     </select>
   </label>
 
-  <!-- 2. PROPIEDAD -->
   <label>Propiedad
     <select id="propiedad" onchange="actualizarCampos(); actualizarPisos();">
       <option value="Casa PANDO">Casa PANDO</option>
@@ -53,34 +54,28 @@
     </select>
   </label>
 
-  <!-- 3. PISO (solo para Casa PANDO) -->
   <label id="labelPiso" style="display:none;">Piso
     <select id="piso" onchange="actualizarHabitaciones()"></select>
   </label>
 
-  <!-- 4. HABITACIÓN / ESPACIO -->
   <label id="labelHabitacion">Espacio de alquiler / Unidad
     <select id="habitacion">
       <option value="Ninguna">Ninguna</option>
     </select>
   </label>
 
-  <!-- 5. FECHA -->
   <label>Fecha
     <input type="date" id="fecha">
   </label>
 
-  <!-- 6. CATEGORÍA -->
   <label>Categoría
     <select id="categoria"></select>
   </label>
 
-  <!-- 7. DESCRIPCIÓN -->
   <label>Descripción
     <input type="text" id="descripcion" placeholder="Ej. Alquiler Habitación 1, pago de luz, etc.">
   </label>
 
-  <!-- 8. MONTO -->
   <label>Monto (S/)
     <input type="number" id="monto" step="0.01" min="0.10" placeholder="Ej. 150.00" inputmode="decimal">
   </label>
@@ -96,7 +91,6 @@
 <script>
 let movimientos = [];
 
-// PISOS Y HABITACIONES
 const pisosCasa = {
   "Piso 1": ["Habitación 1","Habitación 2","Habitación 3","Habitación 4","Habitación 5"],
   "Piso 2": ["Habitación 1","Habitación 2","Habitación 3","Habitación 4","Habitación 5"],
@@ -105,7 +99,6 @@ const pisosCasa = {
   "Piso 5": ["Habitación 1","Habitación 2","Habitación 3","Habitación 4","Habitación 5"]
 };
 
-// OTRAS PROPIEDADES
 const espacios = {
   "Puesto Arcángel": ["Puesto 1","Puesto 2"],
   "Puesto San Antonio": ["Puesto 1","Puesto 2"],
@@ -114,22 +107,18 @@ const espacios = {
   "Sueldo Esposa": ["Ingreso mensual"]
 };
 
-// CATEGORÍAS
 const categoriasIngreso = ["Alquiler","Sueldo Darwin","Sueldo Esposa","Otros ingresos"];
 const categoriasEgreso = ["Pasajes","Alimentos","Luz","Agua","Internet","Gas","Celular Darwin","Celular Esposa","Otros egresos"];
 
-// GUARDADO AUTOMÁTICO
 function guardarDatos(){ localStorage.setItem("movimientosPANDO", JSON.stringify(movimientos)); }
 function cargarDatos(){
   const datos = localStorage.getItem("movimientosPANDO");
   if(datos){ movimientos = JSON.parse(datos); actualizarResumen(); pintarHistorial(); }
 }
 
-// MOSTRAR / OCULTAR CAMPOS SEGÚN TIPO Y PROPIEDAD
 function actualizarCampos(){
   const tipo = document.getElementById("tipo").value;
   const propiedad = document.getElementById("propiedad").value;
-
   const labelPiso = document.getElementById("labelPiso");
   const labelHabitacion = document.getElementById("labelHabitacion");
 
@@ -148,12 +137,10 @@ function actualizarCampos(){
   }
 }
 
-// ACTUALIZAR PISOS
 function actualizarPisos(){
   const propiedad = document.getElementById("propiedad").value;
   const pisoSelect = document.getElementById("piso");
   const habSelect = document.getElementById("habitacion");
-
   habSelect.innerHTML = "";
 
   if(propiedad === "Casa PANDO"){
@@ -176,12 +163,10 @@ function actualizarPisos(){
   }
 }
 
-// ACTUALIZAR HABITACIONES SEGÚN PISO
 function actualizarHabitaciones(){
   const piso = document.getElementById("piso").value;
   const habSelect = document.getElementById("habitacion");
   habSelect.innerHTML = "";
-
   pisosCasa[piso].forEach(h => {
     const op = document.createElement("option");
     op.value = `${piso} - ${h}`;
@@ -190,12 +175,10 @@ function actualizarHabitaciones(){
   });
 }
 
-// ACTUALIZAR CATEGORÍAS
 function actualizarCategorias(){
   const tipo = document.getElementById("tipo").value;
   const categoriaSelect = document.getElementById("categoria");
   categoriaSelect.innerHTML = "";
-
   const lista = tipo === "ingreso" ? categoriasIngreso : categoriasEgreso;
   lista.forEach(cat => {
     const op = document.createElement("option");
@@ -205,76 +188,4 @@ function actualizarCategorias(){
   });
 }
 
-function formato(n){ return "S/ " + n.toFixed(2); }
-
-function actualizarResumen(){
-  let ingresos = 0, egresos = 0;
-  movimientos.forEach(m => m.tipo === "ingreso" ? ingresos += m.monto : egresos += m.monto);
-  document.getElementById("ingresosTotal").textContent = formato(ingresos);
-  document.getElementById("egresosTotal").textContent = formato(egresos);
-  document.getElementById("balanceTotal").textContent = formato(ingresos - egresos);
-}
-
-// ⭐ BORRAR MOVIMIENTO INDIVIDUAL
-function eliminarMovimiento(i){
-  if(confirm("¿Seguro que deseas eliminar este movimiento?")){
-    movimientos.splice(i, 1);
-    guardarDatos();
-    actualizarResumen();
-    pintarHistorial();
-  }
-}
-
-// HISTORIAL CON BOTÓN X
-function pintarHistorial(){
-  const cont = document.getElementById("historial");
-  cont.innerHTML = "";
-
-  movimientos.forEach((m, index) => {
-    const div = document.createElement("div");
-    div.className = "historial-item";
-
-    div.innerHTML = `
-      ${m.fecha} · ${m.tipo.toUpperCase()} · ${m.categoria} · S/ ${m.monto.toFixed(2)}
-      — ${m.descripcion} · ${m.propiedad} · ${m.habitacion}
-      <button class="btn-delete" onclick="eliminarMovimiento(${index})">X</button>
-    `;
-
-    cont.appendChild(div);
-  });
-}
-
-function registrar(){
-  const fecha = document.getElementById("fecha").value || new Date().toISOString().slice(0,10);
-  const tipo = document.getElementById("tipo").value;
-  const categoria = document.getElementById("categoria").value;
-  const descripcion = document.getElementById("descripcion").value || "";
-  const monto = parseFloat(document.getElementById("monto").value || "0");
-  const propiedad = document.getElementById("propiedad").value;
-  const habitacion = document.getElementById("habitacion").value;
-
-  if(isNaN(monto) || monto < 0.10){
-    alert("Ingresa un monto válido (mínimo S/ 0.10).");
-    return;
-  }
-
-  movimientos.push({ fecha, tipo, categoria, descripcion, monto, propiedad, habitacion });
-
-  guardarDatos();
-  actualizarResumen();
-  pintarHistorial();
-
-  document.getElementById("monto").value = "";
-  document.getElementById("descripcion").value = "";
-}
-
-cargarDatos();
-actualizarCategorias();
-actualizarCampos();
-actualizarPisos();
-</script>
-
-</body>
-</html>
-
-
+function formato(n){ return "S/ " +
