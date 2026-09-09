@@ -38,7 +38,7 @@
   <h2>Nuevo movimiento</h2>
 
   <label>Tipo de movimiento
-    <select id="tipo" onchange="actualizarCategorias(); actualizarCampos();">
+    <select id="tipo" onchange="actualizarCategorias(); actualizarCampos(); actualizarPisos();">
       <option value="ingreso">Ingreso</option>
       <option value="egreso">Egreso</option>
     </select>
@@ -121,6 +121,7 @@ function cargarDatos(){
 function actualizarCampos(){
   const tipo = document.getElementById("tipo").value;
   const propiedad = document.getElementById("propiedad").value;
+
   const labelPiso = document.getElementById("labelPiso");
   const labelHabitacion = document.getElementById("labelHabitacion");
 
@@ -143,6 +144,7 @@ function actualizarPisos(){
   const propiedad = document.getElementById("propiedad").value;
   const pisoSelect = document.getElementById("piso");
   const habSelect = document.getElementById("habitacion");
+
   habSelect.innerHTML = "";
 
   if(propiedad === "Casa PANDO"){
@@ -168,7 +170,9 @@ function actualizarPisos(){
 function actualizarHabitaciones(){
   const piso = document.getElementById("piso").value;
   const habSelect = document.getElementById("habitacion");
+
   habSelect.innerHTML = "";
+
   pisosCasa[piso].forEach(h => {
     const op = document.createElement("option");
     op.value = `${piso} - ${h}`;
@@ -180,8 +184,11 @@ function actualizarHabitaciones(){
 function actualizarCategorias(){
   const tipo = document.getElementById("tipo").value;
   const categoriaSelect = document.getElementById("categoria");
+
   categoriaSelect.innerHTML = "";
+
   const lista = tipo === "ingreso" ? categoriasIngreso : categoriasEgreso;
+
   lista.forEach(cat => {
     const op = document.createElement("option");
     op.value = cat;
@@ -265,6 +272,10 @@ actualizarCategorias();
 actualizarCampos();
 actualizarPisos();
 </script>
+
+</body>
+</html>
+
 
 </body>
 </html>
