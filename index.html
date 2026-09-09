@@ -87,7 +87,7 @@
   </div>
 
   <script>
-    const movimientos = [];
+    let movimientos = [];
 
     const categoriasIngreso = [
       "Alquileres",
@@ -116,6 +116,23 @@
       "Piso 5 - Habitación 501",
       "Piso 5 - Habitación 502"
     ];
+
+    // ⭐⭐⭐ GUARDADO AUTOMÁTICO ⭐⭐⭐
+
+    function guardarDatos() {
+      localStorage.setItem("movimientosPANDO", JSON.stringify(movimientos));
+    }
+
+    function cargarDatos() {
+      const datos = localStorage.getItem("movimientosPANDO");
+      if (datos) {
+        movimientos = JSON.parse(datos);
+        actualizarResumen();
+        pintarHistorial();
+      }
+    }
+
+    // ⭐⭐⭐ FIN GUARDADO AUTOMÁTICO ⭐⭐⭐
 
     function actualizarHabitaciones() {
       const propiedad = document.getElementById('propiedad').value;
@@ -198,6 +215,9 @@
       }
 
       movimientos.push({ fecha, tipo, categoria, descripcion, monto, propiedad, habitacion });
+
+      guardarDatos(); // ⭐ GUARDA AUTOMÁTICAMENTE
+
       actualizarResumen();
       pintarHistorial();
 
@@ -205,7 +225,7 @@
       document.getElementById('descripcion').value = '';
     }
 
-    actualizarResumen();
-  </script>
+    cargarDatos(); // ⭐ CARGA AUTOMÁTICAMENTE AL INICIAR
+</script>
 </body>
 </html>
