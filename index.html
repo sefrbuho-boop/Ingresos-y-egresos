@@ -42,14 +42,16 @@
 
     <label>Propiedad
       <select id="propiedad" onchange="actualizarHabitaciones()">
-        <option value="Casa Principal PANDO">Casa Principal PANDO</option>
-        <option value="Local Comercial PANDO">Local Comercial PANDO</option>
-        <option value="Departamento PANDO">Departamento PANDO</option>
-        <option value="Edificio PANDO">Edificio PANDO</option>
+        <option value="Casa PANDO">Casa PANDO</option>
+        <option value="Puesto Arcángel">Puesto Arcángel</option>
+        <option value="Puesto San Antonio">Puesto San Antonio</option>
+        <option value="Casa BO">Casa BO</option>
+        <option value="Sueldo Darwin">Sueldo Darwin</option>
+        <option value="Sueldo Esposa">Sueldo Esposa</option>
       </select>
     </label>
 
-    <label>Habitación / Piso (solo para Edificio PANDO)
+    <label>Habitación / Piso / Unidad
       <select id="habitacion">
         <option value="Ninguna">Ninguna</option>
       </select>
@@ -89,36 +91,44 @@
   <script>
     let movimientos = [];
 
+    // ⭐⭐⭐ PROPIEDADES Y HABITACIONES COMPLETAS ⭐⭐⭐
+    const habitaciones = {
+      "Casa PANDO": [
+        "Piso 1 - Habitación 1","Piso 1 - Habitación 2","Piso 1 - Habitación 3","Piso 1 - Habitación 4","Piso 1 - Habitación 5",
+        "Piso 2 - Habitación 1","Piso 2 - Habitación 2","Piso 2 - Habitación 3","Piso 2 - Habitación 4","Piso 2 - Habitación 5",
+        "Piso 3 - Habitación 1","Piso 3 - Habitación 2","Piso 3 - Habitación 3","Piso 3 - Habitación 4","Piso 3 - Habitación 5",
+        "Piso 4 - Habitación 1","Piso 4 - Habitación 2","Piso 4 - Habitación 3","Piso 4 - Habitación 4","Piso 4 - Habitación 5",
+        "Piso 5 - Habitación 1","Piso 5 - Habitación 2","Piso 5 - Habitación 3","Piso 5 - Habitación 4","Piso 5 - Habitación 5"
+      ],
+
+      "Puesto Arcángel": ["Puesto 1", "Puesto 2"],
+      "Puesto San Antonio": ["Puesto 1", "Puesto 2"],
+      "Casa BO": ["Departamento 1"],
+      "Sueldo Darwin": ["Ingreso mensual"],
+      "Sueldo Esposa": ["Ingreso mensual"]
+    };
+
+    // ⭐⭐⭐ CATEGORÍAS COMPLETAS ⭐⭐⭐
     const categoriasIngreso = [
-      "Alquileres",
-      "Sueldos",
-      "Vivienda",
+      "Alquiler",
+      "Sueldo Darwin",
+      "Sueldo Esposa",
       "Otros ingresos"
     ];
 
     const categoriasEgreso = [
-      "Servicios",
-      "Mantenimiento",
-      "Compras",
-      "Impuestos",
+      "Pasajes",
+      "Alimentos",
+      "Luz",
+      "Agua",
+      "Internet",
+      "Gas",
+      "Celular Darwin",
+      "Celular Esposa",
       "Otros egresos"
     ];
 
-    const habitacionesEdificio = [
-      "Piso 1 - Habitación 101",
-      "Piso 1 - Habitación 102",
-      "Piso 2 - Habitación 201",
-      "Piso 2 - Habitación 202",
-      "Piso 3 - Habitación 301",
-      "Piso 3 - Habitación 302",
-      "Piso 4 - Habitación 401",
-      "Piso 4 - Habitación 402",
-      "Piso 5 - Habitación 501",
-      "Piso 5 - Habitación 502"
-    ];
-
     // ⭐⭐⭐ GUARDADO AUTOMÁTICO ⭐⭐⭐
-
     function guardarDatos() {
       localStorage.setItem("movimientosPANDO", JSON.stringify(movimientos));
     }
@@ -132,28 +142,23 @@
       }
     }
 
-    // ⭐⭐⭐ FIN GUARDADO AUTOMÁTICO ⭐⭐⭐
-
+    // ⭐⭐⭐ ACTUALIZAR HABITACIONES ⭐⭐⭐
     function actualizarHabitaciones() {
       const propiedad = document.getElementById('propiedad').value;
       const habSelect = document.getElementById('habitacion');
       habSelect.innerHTML = "";
 
-      if (propiedad === "Edificio PANDO") {
-        habitacionesEdificio.forEach(h => {
-          const option = document.createElement("option");
-          option.value = h;
-          option.textContent = h;
-          habSelect.appendChild(option);
-        });
-      } else {
+      const lista = habitaciones[propiedad] || ["Ninguna"];
+
+      lista.forEach(h => {
         const option = document.createElement("option");
-        option.value = "Ninguna";
-        option.textContent = "Ninguna";
+        option.value = h;
+        option.textContent = h;
         habSelect.appendChild(option);
-      }
+      });
     }
 
+    // ⭐⭐⭐ ACTUALIZAR CATEGORÍAS ⭐⭐⭐
     function actualizarCategorias() {
       const tipo = document.getElementById('tipo').value;
       const categoriaSelect = document.getElementById('categoria');
@@ -226,6 +231,6 @@
     }
 
     cargarDatos(); // ⭐ CARGA AUTOMÁTICAMENTE AL INICIAR
-</script>
+  </script>
 </body>
 </html>
