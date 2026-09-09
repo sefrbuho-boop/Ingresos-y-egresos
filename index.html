@@ -17,218 +17,243 @@
   </style>
 </head>
 <body>
-  <h1>Ingresos y Egresos PANDO</h1>
 
-  <div class="card">
-    <h2>Resumen</h2>
-    <div class="resumen">
-      <div>
-        <div>Ingresos</div>
-        <strong id="ingresosTotal">S/ 0.00</strong>
-      </div>
-      <div>
-        <div>Egresos</div>
-        <strong id="egresosTotal">S/ 0.00</strong>
-      </div>
-      <div>
-        <div>Balance</div>
-        <strong id="balanceTotal">S/ 0.00</strong>
-      </div>
-    </div>
+<h1>Ingresos y Egresos PANDO</h1>
+
+<div class="card">
+  <h2>Resumen</h2>
+  <div class="resumen">
+    <div><div>Ingresos</div><strong id="ingresosTotal">S/ 0.00</strong></div>
+    <div><div>Egresos</div><strong id="egresosTotal">S/ 0.00</strong></div>
+    <div><div>Balance</div><strong id="balanceTotal">S/ 0.00</strong></div>
   </div>
+</div>
 
-  <div class="card">
-    <h2>Nuevo movimiento</h2>
+<div class="card">
+  <h2>Nuevo movimiento</h2>
 
-    <label>Propiedad
-      <select id="propiedad" onchange="actualizarHabitaciones()">
-        <option value="Casa PANDO">Casa PANDO</option>
-        <option value="Puesto Arcángel">Puesto Arcángel</option>
-        <option value="Puesto San Antonio">Puesto San Antonio</option>
-        <option value="Casa BO">Casa BO</option>
-        <option value="Sueldo Darwin">Sueldo Darwin</option>
-        <option value="Sueldo Esposa">Sueldo Esposa</option>
-      </select>
-    </label>
+  <!-- 1. INGRESO O EGRESO -->
+  <label>Tipo de movimiento
+    <select id="tipo" onchange="actualizarCategorias(); actualizarCampos();">
+      <option value="ingreso">Ingreso</option>
+      <option value="egreso">Egreso</option>
+    </select>
+  </label>
 
-    <label>Espacio de alquiler / Unidad
-      <select id="habitacion">
-        <option value="Ninguna">Ninguna</option>
-      </select>
-    </label>
+  <!-- 2. PROPIEDAD -->
+  <label>Propiedad
+    <select id="propiedad" onchange="actualizarCampos(); actualizarPisos();">
+      <option value="Casa PANDO">Casa PANDO</option>
+      <option value="Puesto Arcángel">Puesto Arcángel</option>
+      <option value="Puesto San Antonio">Puesto San Antonio</option>
+      <option value="Casa BO">Casa BO</option>
+      <option value="Sueldo Darwin">Sueldo Darwin</option>
+      <option value="Sueldo Esposa">Sueldo Esposa</option>
+    </select>
+  </label>
 
-    <label>Fecha
-      <input type="date" id="fecha">
-    </label>
+  <!-- 3. PISO (solo para Casa PANDO) -->
+  <label id="labelPiso" style="display:none;">Piso
+    <select id="piso" onchange="actualizarHabitaciones()"></select>
+  </label>
 
-    <label>Tipo
-      <select id="tipo" onchange="actualizarCategorias()">
-        <option value="ingreso">Ingreso</option>
-        <option value="egreso">Egreso</option>
-      </select>
-    </label>
+  <!-- 4. HABITACIÓN / ESPACIO -->
+  <label id="labelHabitacion">Espacio de alquiler / Unidad
+    <select id="habitacion">
+      <option value="Ninguna">Ninguna</option>
+    </select>
+  </label>
 
-    <label>Categoría
-      <select id="categoria"></select>
-    </label>
+  <!-- 5. FECHA -->
+  <label>Fecha
+    <input type="date" id="fecha">
+  </label>
 
-    <label>Descripción
-      <input type="text" id="descripcion" placeholder="Ej. Alquiler Habitación 1, pago de luz, etc.">
-    </label>
+  <!-- 6. CATEGORÍA -->
+  <label>Categoría
+    <select id="categoria"></select>
+  </label>
 
-    <label>Monto (S/)
-      <input type="number" id="monto" step="0.01" min="0.10" placeholder="Ej. 150.00" inputmode="decimal">
-    </label>
+  <!-- 7. DESCRIPCIÓN -->
+  <label>Descripción
+    <input type="text" id="descripcion" placeholder="Ej. Alquiler Habitación 1, pago de luz, etc.">
+  </label>
 
-    <button onclick="registrar()">Registrar movimiento</button>
-  </div>
+  <!-- 8. MONTO -->
+  <label>Monto (S/)
+    <input type="number" id="monto" step="0.01" min="0.10" placeholder="Ej. 150.00" inputmode="decimal">
+  </label>
 
-  <div class="card">
-    <h2>Historial</h2>
-    <div id="historial"></div>
-  </div>
+  <button onclick="registrar()">Registrar movimiento</button>
+</div>
 
-  <script>
-    let movimientos = [];
+<div class="card">
+  <h2>Historial</h2>
+  <div id="historial"></div>
+</div>
 
-    // PROPIEDADES Y ESPACIOS DE ALQUILER
-    const habitaciones = {
-      "Casa PANDO": [
-        "Piso 1 - Habitación 1","Piso 1 - Habitación 2","Piso 1 - Habitación 3","Piso 1 - Habitación 4","Piso 1 - Habitación 5",
-        "Piso 2 - Habitación 1","Piso 2 - Habitación 2","Piso 2 - Habitación 3","Piso 2 - Habitación 4","Piso 2 - Habitación 5",
-        "Piso 3 - Habitación 1","Piso 3 - Habitación 2","Piso 3 - Habitación 3","Piso 3 - Habitación 4","Piso 3 - Habitación 5",
-        "Piso 4 - Habitación 1","Piso 4 - Habitación 2","Piso 4 - Habitación 3","Piso 4 - Habitación 4","Piso 4 - Habitación 5",
-        "Piso 5 - Habitación 1","Piso 5 - Habitación 2","Piso 5 - Habitación 3","Piso 5 - Habitación 4","Piso 5 - Habitación 5"
-      ],
-      "Puesto Arcángel": ["Puesto 1", "Puesto 2"],
-      "Puesto San Antonio": ["Puesto 1", "Puesto 2"],
-      "Casa BO": ["Departamento 1"],
-      "Sueldo Darwin": ["Ingreso mensual"],
-      "Sueldo Esposa": ["Ingreso mensual"]
-    };
+<script>
+let movimientos = [];
 
-    // CATEGORÍAS DE INGRESOS Y EGRESOS
-    const categoriasIngreso = [
-      "Alquiler",
-      "Sueldo Darwin",
-      "Sueldo Esposa",
-      "Otros ingresos"
-    ];
+// PISOS Y HABITACIONES
+const pisosCasa = {
+  "Piso 1": ["Habitación 1","Habitación 2","Habitación 3","Habitación 4","Habitación 5"],
+  "Piso 2": ["Habitación 1","Habitación 2","Habititación 3","Habitación 4","Habitación 5"],
+  "Piso 3": ["Habitación 1","Habitación 2","Habitación 3","Habitación 4","Habitación 5"],
+  "Piso 4": ["Habitación 1","Habitación 2","Habitación 3","Habitación 4","Habitación 5"],
+  "Piso 5": ["Habitación 1","Habitación 2","Habitación 3","Habitación 4","Habitación 5"]
+};
 
-    const categoriasEgreso = [
-      "Pasajes",
-      "Alimentos",
-      "Luz",
-      "Agua",
-      "Internet",
-      "Gas",
-      "Celular Darwin",
-      "Celular Esposa",
-      "Otros egresos"
-    ];
+// OTRAS PROPIEDADES
+const espacios = {
+  "Puesto Arcángel": ["Puesto 1","Puesto 2"],
+  "Puesto San Antonio": ["Puesto 1","Puesto 2"],
+  "Casa BO": ["Departamento 1"],
+  "Sueldo Darwin": ["Ingreso mensual"],
+  "Sueldo Esposa": ["Ingreso mensual"]
+};
 
-    // GUARDADO AUTOMÁTICO
-    function guardarDatos() {
-      localStorage.setItem("movimientosPANDO", JSON.stringify(movimientos));
-    }
+// CATEGORÍAS
+const categoriasIngreso = ["Alquiler","Sueldo Darwin","Sueldo Esposa","Otros ingresos"];
+const categoriasEgreso = ["Pasajes","Alimentos","Luz","Agua","Internet","Gas","Celular Darwin","Celular Esposa","Otros egresos"];
 
-    function cargarDatos() {
-      const datos = localStorage.getItem("movimientosPANDO");
-      if (datos) {
-        movimientos = JSON.parse(datos);
-        actualizarResumen();
-        pintarHistorial();
-      }
-    }
+// GUARDADO AUTOMÁTICO
+function guardarDatos(){ localStorage.setItem("movimientosPANDO", JSON.stringify(movimientos)); }
+function cargarDatos(){
+  const datos = localStorage.getItem("movimientosPANDO");
+  if(datos){ movimientos = JSON.parse(datos); actualizarResumen(); pintarHistorial(); }
+}
 
-    // ACTUALIZAR ESPACIOS SEGÚN PROPIEDAD
-    function actualizarHabitaciones() {
-      const propiedad = document.getElementById('propiedad').value;
-      const habSelect = document.getElementById('habitacion');
-      habSelect.innerHTML = "";
+// MOSTRAR / OCULTAR CAMPOS SEGÚN TIPO Y PROPIEDAD
+function actualizarCampos(){
+  const tipo = document.getElementById("tipo").value;
+  const propiedad = document.getElementById("propiedad").value;
 
-      const lista = habitaciones[propiedad] || ["Ninguna"];
+  const labelPiso = document.getElementById("labelPiso");
+  const labelHabitacion = document.getElementById("labelHabitacion");
 
-      lista.forEach(h => {
-        const option = document.createElement("option");
-        option.value = h;
-        option.textContent = h;
-        habSelect.appendChild(option);
-      });
-    }
+  if(tipo === "egreso"){
+    labelPiso.style.display = "none";
+    labelHabitacion.style.display = "none";
+    return;
+  }
 
-    // ACTUALIZAR CATEGORÍAS SEGÚN TIPO
-    function actualizarCategorias() {
-      const tipo = document.getElementById('tipo').value;
-      const categoriaSelect = document.getElementById('categoria');
+  if(propiedad === "Casa PANDO"){
+    labelPiso.style.display = "block";
+    labelHabitacion.style.display = "block";
+  } else {
+    labelPiso.style.display = "none";
+    labelHabitacion.style.display = "block";
+  }
+}
 
-      categoriaSelect.innerHTML = "";
+// ACTUALIZAR PISOS
+function actualizarPisos(){
+  const propiedad = document.getElementById("propiedad").value;
+  const pisoSelect = document.getElementById("piso");
+  const habSelect = document.getElementById("habitacion");
 
-      const lista = tipo === "ingreso" ? categoriasIngreso : categoriasEgreso;
+  habSelect.innerHTML = "";
 
-      lista.forEach(cat => {
-        const option = document.createElement("option");
-        option.value = cat;
-        option.textContent = cat;
-        categoriaSelect.appendChild(option);
-      });
-    }
-
-    actualizarCategorias();
+  if(propiedad === "Casa PANDO"){
+    pisoSelect.innerHTML = "";
+    Object.keys(pisosCasa).forEach(p => {
+      const op = document.createElement("option");
+      op.value = p;
+      op.textContent = p;
+      pisoSelect.appendChild(op);
+    });
     actualizarHabitaciones();
+  } else {
+    const lista = espacios[propiedad] || ["Ninguna"];
+    lista.forEach(h => {
+      const op = document.createElement("option");
+      op.value = h;
+      op.textContent = h;
+      habSelect.appendChild(op);
+    });
+  }
+}
 
-    function formato(n) {
-      return 'S/ ' + n.toFixed(2);
-    }
+// ACTUALIZAR HABITACIONES SEGÚN PISO
+function actualizarHabitaciones(){
+  const piso = document.getElementById("piso").value;
+  const habSelect = document.getElementById("habitacion");
+  habSelect.innerHTML = "";
 
-    function actualizarResumen() {
-      let ingresos = 0, egresos = 0;
-      movimientos.forEach(m => {
-        if (m.tipo === 'ingreso') ingresos += m.monto;
-        else egresos += m.monto;
-      });
-      document.getElementById('ingresosTotal').textContent = formato(ingresos);
-      document.getElementById('egresosTotal').textContent = formato(egresos);
-      document.getElementById('balanceTotal').textContent = formato(ingresos - egresos);
-    }
+  pisosCasa[piso].forEach(h => {
+    const op = document.createElement("option");
+    op.value = `${piso} - ${h}`;
+    op.textContent = `${piso} - ${h}`;
+    habSelect.appendChild(op);
+  });
+}
 
-    function pintarHistorial() {
-      const cont = document.getElementById('historial');
-      cont.innerHTML = '';
-      movimientos.slice().reverse().forEach(m => {
-        const div = document.createElement('div');
-        div.className = 'historial-item';
-        div.textContent =
-          `${m.fecha} · ${m.tipo.toUpperCase()} · ${m.categoria} · ${formato(m.monto)} — ${m.descripcion} · ${m.propiedad} · ${m.habitacion}`;
-        cont.appendChild(div);
-      });
-    }
+// ACTUALIZAR CATEGORÍAS
+function actualizarCategorias(){
+  const tipo = document.getElementById("tipo").value;
+  const categoriaSelect = document.getElementById("categoria");
+  categoriaSelect.innerHTML = "";
 
-    function registrar() {
-      const fecha = document.getElementById('fecha').value || new Date().toISOString().slice(0,10);
-      const tipo = document.getElementById('tipo').value;
-      const categoria = document.getElementById('categoria').value;
-      const descripcion = document.getElementById('descripcion').value || '';
-      const monto = parseFloat(document.getElementById('monto').value || '0');
-      const propiedad = document.getElementById('propiedad').value;
-      const habitacion = document.getElementById('habitacion').value;
+  const lista = tipo === "ingreso" ? categoriasIngreso : categoriasEgreso;
+  lista.forEach(cat => {
+    const op = document.createElement("option");
+    op.value = cat;
+    op.textContent = cat;
+    categoriaSelect.appendChild(op);
+  });
+}
 
-      if (isNaN(monto) || monto < 0.10) {
-        alert('Ingresa un monto válido (mínimo S/ 0.10).');
-        return;
-      }
+function formato(n){ return "S/ " + n.toFixed(2); }
 
-      movimientos.push({ fecha, tipo, categoria, descripcion, monto, propiedad, habitacion });
+function actualizarResumen(){
+  let ingresos = 0, egresos = 0;
+  movimientos.forEach(m => m.tipo === "ingreso" ? ingresos += m.monto : egresos += m.monto);
+  document.getElementById("ingresosTotal").textContent = formato(ingresos);
+  document.getElementById("egresosTotal").textContent = formato(egresos);
+  document.getElementById("balanceTotal").textContent = formato(ingresos - egresos);
+}
 
-      guardarDatos();
-      actualizarResumen();
-      pintarHistorial();
+function pintarHistorial(){
+  const cont = document.getElementById("historial");
+  cont.innerHTML = "";
+  movimientos.slice().reverse().forEach(m => {
+    const div = document.createElement("div");
+    div.className = "historial-item";
+    div.textContent = `${m.fecha} · ${m.tipo.toUpperCase()} · ${m.categoria} · ${formato(m.monto)} — ${m.descripcion} · ${m.propiedad} · ${m.habitacion}`;
+    cont.appendChild(div);
+  });
+}
 
-      document.getElementById('monto').value = '';
-      document.getElementById('descripcion').value = '';
-    }
+function registrar(){
+  const fecha = document.getElementById("fecha").value || new Date().toISOString().slice(0,10);
+  const tipo = document.getElementById("tipo").value;
+  const categoria = document.getElementById("categoria").value;
+  const descripcion = document.getElementById("descripcion").value || "";
+  const monto = parseFloat(document.getElementById("monto").value || "0");
+  const propiedad = document.getElementById("propiedad").value;
+  const habitacion = document.getElementById("habitacion").value;
 
-    cargarDatos();
-  </script>
+  if(isNaN(monto) || monto < 0.10){
+    alert("Ingresa un monto válido (mínimo S/ 0.10).");
+    return;
+  }
+
+  movimientos.push({ fecha, tipo, categoria, descripcion, monto, propiedad, habitacion });
+
+  guardarDatos();
+  actualizarResumen();
+  pintarHistorial();
+
+  document.getElementById("monto").value = "";
+  document.getElementById("descripcion").value = "";
+}
+
+cargarDatos();
+actualizarCategorias();
+actualizarCampos();
+actualizarPisos();
+</script>
+
 </body>
 </html>
